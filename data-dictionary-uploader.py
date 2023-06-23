@@ -40,7 +40,7 @@ def lambda_handler(event, context):
             result_msg = Normalized_Cancer(norm_table, pd, conn)
         if "Treatment" in file_path:  # Ex:  Reported_Condition_Treatment_Release_1.0_harmonized_16Aug2022
             result_msg = Normalized_Treatment(norm_table, pd, conn)
-        #conn.connection.commit()
+        conn.connection.commit()
         file_name = os.path.basename(file_path)
         message_slack_pass = f"Start uploading file {file_name} to the dictionary database \n"
         for msg in result_msg:
@@ -52,12 +52,12 @@ def lambda_handler(event, context):
             s3_client.put_object(Body=csv_buffer, Bucket='seronet-trigger-submissions-passed', Key='Dictionary_Files/error_list.csv')
             message_slack_pass = message_slack_pass + f"Terms that are not found in Normalized_Description are saved in aws s3 seronet-trigger-submissions-passed/Dictionary_Files/error_list.csv"
         print(message_slack_pass)
-        #write_to_slack(message_slack_pass, slack_pass)
+        write_to_slack(message_slack_pass, slack_pass)
     except Exception as e:
         display_error_line(e)
         file_name = os.path.basename(file_path)
         message_slack_fail = f"Start uploading file {file_name} to the dictionary database \n" + str(e)
-        #write_to_slack(message_slack_fail, slack_fail)
+        write_to_slack(message_slack_fail, slack_fail)
 
     finally:
         print('## Database has been checked.  Closing the connections ##')
