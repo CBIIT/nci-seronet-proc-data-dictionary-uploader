@@ -5,10 +5,12 @@ import sqlalchemy as sd
 import sys
 import os
 import boto3
+import warnings
 import urllib3
 from io import StringIO
 
 def lambda_handler(event, context):
+    warnings.simplefilter("ignore")
     ssm = boto3.client("ssm")
     s3_client = boto3.client('s3')
     slack_fail = ssm.get_parameter(Name="failure_hook_url", WithDecryption=True).get("Parameter").get("Value")
@@ -283,6 +285,7 @@ def Normalized_Cancer(norm_table, pd, conn):
     if len(x) > 0:
         print(f"There are {len(x)} new terms missing")
         result_msg.append(f"There are {len(x)} new terms missing")
+        print(x)
 
     col_names = ", ".join(["`" + i + "`" for i in new_data.columns])
     add_count, result_msg = add_new_rows(conn, new_data, "Normalized_Cancer_Names_v2", col_names, result_msg)
